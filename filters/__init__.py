@@ -1,9 +1,8 @@
-from aiogram import Dispatcher
-
 from loader import dp
-# from .is_admin import AdminFilter
+from .private import IsPrivateAdmin
+from .photo_url import IsValidUrl
 
 
 if __name__ == "filters":
-    #dp.filters_factory.bind(is_admin)
-    pass
+    dp.filters_factory.bind(IsPrivateAdmin)
+    dp.filters_factory.bind(IsValidUrl)
