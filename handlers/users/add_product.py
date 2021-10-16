@@ -1,11 +1,10 @@
 import logging
-import sqlite3
 
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
+from asyncpg.exceptions import UniqueViolationError
 
-from data.config import counter_products
 from filters import IsPrivateAdmin, IsValidUrl
 from keyboards.inline.to_inline_mode import to_inline_mode
 from loader import dp, db
@@ -53,13 +52,13 @@ async def product_photo(message: types.Message, state: FSMContext):
         link = await photo_link(photo)
 
     data = await state.get_data()
-    title, description, price, photo_url = data.get('title'), data.get('description'), data.get('price'), link
+    title, description, price, photo_url = data.get('title'), data.get('description'), int(data.get('price')), link
     try:
-        db.add_product(next(counter_products), title, description, price, link)
+        await db.add_product(title, description, link, price)
         await message.answer('Замечательно. Новый продукт создан и добавлен в базу🥇.',
                              reply_markup=to_inline_mode)
         await state.finish()
-    except sqlite3.IntegrityError:
+    except UniqueViolationError:
         logging.error('Ошибка уникальности. add_product')
         await message.answer('Ошибка уникальности.')
 

@@ -13,8 +13,8 @@ from utils.misc.acl_decorator import allow
 @allow()
 @dp.message_handler(CommandStart())
 async def bot_start(message: types.Message):
-    user = db.select_user(message.from_user.id)
-    if user[2]:
+    user = await db.select_user(message.from_user.id)
+    if user.get('allowed'):
         await list_head(message)
     else:
         await list_for_register(message)
@@ -46,9 +46,9 @@ async def get_start(call: types.CallbackQuery):
 @dp.callback_query_handler(menu_cd.filter(level='1', start='menu_registered', head='profile', body='0', foot='0'))
 async def get_profile(call: types.CallbackQuery, callback_data: dict):
     await call.answer()
-    data = db.select_user(call.from_user.id)
+    data = await db.select_user(int(call.from_user.id))
     markup = await body_keyboard(start=callback_data.get('start'), head=callback_data.get('head'))
-    await call.message.edit_text(f'Рады видеть вас, {data[1]}\n\n'
-                                 f'🔅Telegram ID: {data[0]}\n'
-                                 f'💴Остаток: {70 * data[4]} рублей',
+    await call.message.edit_text(f'Рады видеть вас, {data.get("name")}\n\n'
+                                 f'🔅Telegram ID: {data.get("telegram_id")}\n'
+                                 f'💴Остаток: {70 * data.get("money")} рублей',
                                  reply_markup=markup)

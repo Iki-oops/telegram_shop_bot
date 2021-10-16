@@ -61,11 +61,15 @@ async def write_invite(call: types.CallbackQuery, callback_data: dict):
 @allow(state=True)
 @dp.message_handler(state=Invite.I1)
 async def invite_code(message: types.Message, state: FSMContext):
-    referrer = db.select_user(message.text)
+    try:
+        referrer_id = int(message.text)
+    except (AttributeError, ValueError, TypeError):
+        referrer_id = None
+    referrer = await db.select_user(referrer_id)
     if referrer:
-        money = referrer[4] + 10
-        db.update_user(referrer[0], money=money)
-        db.update_user(message.from_user.id, allowed=1)
+        money = referrer.get('money') + 10
+        await db.update_user(referrer.get('telegram_id'), money=money)
+        await db.update_user(message.from_user.id, allowed=True)
         await message.answer('Код приглашения сработал.\nВам доступен бот👩‍💼\n'
                              'Нажми на кнопку, чтобы начать смотреть на каталог товаров👇',
                              reply_markup=to_inline_mode)

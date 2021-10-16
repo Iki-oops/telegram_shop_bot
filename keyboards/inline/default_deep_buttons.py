@@ -10,7 +10,7 @@ def make_callback_data(level, start='0', head='0', body='0', foot='0'):
 
 async def head_keyboard(start, **kwargs):
     CURRENT_LEVEL = 0
-    markup = InlineKeyboardMarkup(row_width=2)
+    markup = InlineKeyboardMarkup(row_width=1)
     for item in kwargs:
         callback_data = make_callback_data(level=CURRENT_LEVEL+1, start=start, head=item)
         markup.insert(
