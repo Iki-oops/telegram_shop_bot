@@ -107,7 +107,7 @@ price INT NOT NULL
         await self.execute(sql, execute=True)
 
     async def select_all_products(self):
-        sql = "SELECT * FROM Products;"
+        sql = "SELECT * FROM Products ORDER BY title;"
         return await self.execute(sql, fetch=True)
 
     async def select_product(self, **kwargs):
